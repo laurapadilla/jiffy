@@ -2,6 +2,7 @@
 import React, { Component } from "react";
 // here we import our loader spinner image
 import loader from "./images/loader.svg";
+import Gif from "./Gif";
 
 const randomChoice = (arr) => {
   const randIndex = Math.floor(Math.random() * arr.length);
@@ -107,7 +108,7 @@ class App extends Component {
 
   render() {
     // const searchTerm = this.state.searchTerm
-    const { searchTerm, gif } = this.state;
+    const { searchTerm } = this.state;
     return (
       <div className="page">
         <Header />
@@ -116,12 +117,8 @@ class App extends Component {
           {/* loop over array of gif images from our state 
           and we create multiple videos from it */}
           {this.state.gifs.map((gif) => (
-            <video
-              className="grid-item video"
-              autoPlay
-              loop
-              src={gif.images.original.mp4}
-            />
+            // spread all properties onto Gif component
+            <Gif {...gif} />
           ))}
 
           <input
