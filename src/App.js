@@ -31,6 +31,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      loading: false,
       searchTerm: "",
       hintText: "",
       gif: null,
@@ -39,14 +40,21 @@ class App extends Component {
     };
   }
 
-  // SEARCH FUNCTION
   // we want a function that searches the giphy API using fetch and
   // puts he search term into the query url
   // then we can do something with the results
 
   // we cn also write async methods into our components
   // that let us use the async/await style of function
+
+  // SEARCH FUNCTION
   searchGiphy = async (searchTerm) => {
+    // here we set our loading state to be true
+    // and this will show the spinner at the bottom
+    this.setState({
+      loading: true,
+    });
+
     // first we try fetch
     try {
       // we use the await keyword to wait for a response
@@ -67,6 +75,8 @@ class App extends Component {
         // here we use spread to take previous gifs and spread them out
         // then we add the new random gif at the end
         gifs: [...prevState.gifs, randomGif],
+        // turn off loading spinner again
+        loading: false,
       }));
 
       // if fetch fails, we catch it here
