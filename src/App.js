@@ -3,6 +3,11 @@ import React, { Component } from "react";
 // here we import our loader spinner image
 import loader from "./images/loader.svg";
 
+const randomChoice = (arr) => {
+  const randIndex = Math.floor(Math.random() * arr.length);
+  return arr[randIndex];
+};
+
 const Header = () => (
   <div className="header grid">
     <h1 className="title">Jiffy</h1>
@@ -27,8 +32,45 @@ class App extends Component {
     this.state = {
       searchTerm: "",
       hintText: "",
+      gif: null,
+      // we have an array of gifs
+      gifs: [],
     };
   }
+
+  // SEARCH FUNCTION
+  // we want a function that searches the giphy API using fetch and
+  // puts he search term into the query url
+  // then we can do something with the results
+
+  // we cn also write async methods into our components
+  // that let us use the async/await style of function
+  searchGiphy = async (searchTerm) => {
+    // first we try fetch
+    try {
+      // we use the await keyword to wait for a response
+      const response = await fetch(
+        `https://api.giphy.com/v1/gifs/search?api_key=ftE32xZjBBX3aeAGAKdh1C6pokr2V1tY&q=${searchTerm}&limit=100&offset=0&rating=pg-13&lang=en`
+      );
+      // we convert our raw response into json data
+      // const {data} gets the .data part of our response
+      const { data } = await response.json();
+
+      // grab a random result from the images
+      const randomGif = randomChoice(data);
+
+      this.setState((prevState, props) => ({
+        ...prevState,
+        // get first result and put it in the state
+        gif: randomGif,
+        // here we use spread to take previous gifs and spread them out
+        // then we add the new random gif at the end
+        gifs: [...prevState.gifs, randomGif],
+      }));
+
+      // if fetch fails, we catch it here
+    } catch (error) {}
+  };
 
   //with create react app, we can write our methods
   // as arrow functions, meaning we don't need the
@@ -57,19 +99,31 @@ class App extends Component {
   handleKeyPress = (event) => {
     const { value } = event.target;
     if (value.length > 2 && event.key === "Enter") {
-      alert(`search for ${value}`);
+      // we call the searchGiphy function using the search term
+      this.searchGiphy(value);
     }
     console.log(event.key);
   };
 
   render() {
     // const searchTerm = this.state.searchTerm
-    const { searchTerm } = this.state;
+    const { searchTerm, gif } = this.state;
     return (
       <div className="page">
         <Header />
         <div className="search grid">
           {/* our stack of gif images */}
+          {/* loop over array of gif images from our state 
+          and we create multiple videos from it */}
+          {this.state.gifs.map((gif) => (
+            <video
+              className="grid-item video"
+              autoPlay
+              loop
+              src={gif.images.original.mp4}
+            />
+          ))}
+
           <input
             className="input grid-item"
             placeholder="Type something"
