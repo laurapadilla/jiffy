@@ -2,6 +2,8 @@
 import React, { Component } from "react";
 // here we import our loader spinner image
 import loader from "./images/loader.svg";
+
+import clearButton from "./images/close-icon.svg";
 import Gif from "./Gif";
 
 const randomChoice = (arr) => {
@@ -9,9 +11,19 @@ const randomChoice = (arr) => {
   return arr[randIndex];
 };
 
-const Header = () => (
+// we can pick out prop inside the header component
+// we can pass down functions as props as well as things
+// like numbers, strings, arrays, objects, functions (data inside js)
+const Header = ({ clearSearch, hasResults }) => (
   <div className="header grid">
-    <h1 className="title">Jiffy</h1>
+    {/* if we have reuslts, show clear button, otherwise show title */}
+    {hasResults ? (
+      <button onClick={clearSearch}>
+        <img src={clearButton} alt="clear" />
+      </button>
+    ) : (
+      <h1 className="title">Jiffy</h1>
+    )}
   </div>
 );
 
@@ -34,7 +46,6 @@ class App extends Component {
       loading: false,
       searchTerm: "",
       hintText: "",
-      gif: null,
       // we have an array of gifs
       gifs: [],
     };
@@ -65,22 +76,34 @@ class App extends Component {
       // const {data} gets the .data part of our response
       const { data } = await response.json();
 
+      // check if the array of results is empty
+      // if it is, we throw an error which will stop the function and handle it in the catch area
+      if (!data.length) {
+        // eslint-disable-next-line no-throw-literal
+        throw `Nothing to see for ${searchTerm}`;
+      }
+
       // grab a random result from the images
       const randomGif = randomChoice(data);
 
       this.setState((prevState, props) => ({
         ...prevState,
-        // get first result and put it in the state
-        gif: randomGif,
         // here we use spread to take previous gifs and spread them out
         // then we add the new random gif at the end
         gifs: [...prevState.gifs, randomGif],
         // turn off loading spinner again
         loading: false,
+        hintText: `Hit enter to see more ${searchTerm}`,
       }));
 
       // if fetch fails, we catch it here
-    } catch (error) {}
+    } catch (error) {
+      this.setState((prevState, props) => ({
+        ...prevState,
+        hintText: error,
+        loading: false,
+      }));
+    }
   };
 
   //with create react app, we can write our methods
@@ -92,7 +115,7 @@ class App extends Component {
     const { value } = event.target;
     // by setting the search term in our state,
     // and also using it on the input as the value,
-    // we have created what is called a controlled inout
+    // we have created what is called a controlled input
     this.setState((prevState, props) => ({
       // we take our old props and spread them out here
       ...prevState,
@@ -113,15 +136,28 @@ class App extends Component {
       // we call the searchGiphy function using the search term
       this.searchGiphy(value);
     }
-    console.log(event.key);
+  };
+
+  // reset our state by clearing everything out
+  // and making it default again (like the original/default state)
+  clearSearch = () => {
+    this.setState((prevState, props) => ({
+      ...prevState,
+      searchTerm: "",
+      hintText: "",
+      gifs: [],
+    }));
   };
 
   render() {
     // const searchTerm = this.state.searchTerm
-    const { searchTerm } = this.state;
+    const { searchTerm, gifs } = this.state;
+    // set a variable to see if we have any gifs
+    const hasResults = gifs.length;
     return (
       <div className="page">
-        <Header />
+        <Header clearSearch={this.clearSearch} hasResults={hasResults} />
+
         <div className="search grid">
           {/* our stack of gif images */}
           {/* loop over array of gif images from our state 
