@@ -147,6 +147,8 @@ class App extends Component {
       hintText: "",
       gifs: [],
     }));
+    // grab input and then focus the cursor back into it
+    this.textInput.focus();
   };
 
   render() {
@@ -173,6 +175,9 @@ class App extends Component {
             onChange={this.handleChange}
             onKeyPress={this.handleKeyPress}
             value={searchTerm}
+            ref={(input) => {
+              this.textInput = input;
+            }}
           />
         </div>
 
